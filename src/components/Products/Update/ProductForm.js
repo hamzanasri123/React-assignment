@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import {Button, Form, FormFeedback, FormGroup, Input, Label} from 'reactstrap';
-import {getMultiSelected, repeat} from '../../../utils';
-import {isCategoriesValid, isNameValid} from './validators';
+import { Button, Form, FormFeedback, FormGroup, Input, Label } from 'reactstrap';
+import { getMultiSelected, repeat } from '../../../utils';
+import { isCategoriesValid, isNameValid } from './validators';
 
 const ProductForm = (props) => {
-    const {product = {}} = props;
+    const { product = {}, redirect } = props;
     const [name, setName] = useState(product.name || '');
     const [brand, setBrand] = useState(product.brand || '');
     const [rating, setRating] = useState(product.rating || 0);
@@ -27,7 +27,11 @@ const ProductForm = (props) => {
             expirationDate,
             featured,
         });
+
+        redirect()
     }
+
+    const min = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]
 
     return (
         <Form onSubmit={onSubmit}>
@@ -40,7 +44,7 @@ const ProductForm = (props) => {
                     id='name'
                     placeholder='Name'
                     value={name}
-                    onChange={({target}) => setName(target.value)}
+                    onChange={({ target }) => setName(target.value)}
                 />
                 <FormFeedback>Name is required, the length must not be greater than 200</FormFeedback>
             </FormGroup>
@@ -52,7 +56,7 @@ const ProductForm = (props) => {
                     id='brand'
                     placeholder='Brand'
                     value={brand}
-                    onChange={({target}) => setBrand(target.value)}
+                    onChange={({ target }) => setBrand(target.value)}
                 />
             </FormGroup>
             <FormGroup>
@@ -62,7 +66,10 @@ const ProductForm = (props) => {
                     name="rating"
                     id="rating"
                     value={rating}
-                    onChange={({target}) => setRating(target.value)}
+                    onChange={({ target }) => {
+                        setRating(target.value)
+                        target.value > 8 ? setFeatured(true) : setFeatured(false)
+                    }}
                 >
                     {repeat(11).map((v) => (
                         <option key={v} value={v}>{v}</option>
@@ -78,9 +85,9 @@ const ProductForm = (props) => {
                     id="categories"
                     multiple
                     value={categories}
-                    onChange={({target}) => setCategories(getMultiSelected(target))}
+                    onChange={({ target }) => setCategories(getMultiSelected(target))}
                 >
-                    {props.categories.map(({id, name}) => (
+                    {props.categories.map(({ id, name }) => (
                         <option key={id} value={id}>{name}</option>
                     ))}
                 </Input>
@@ -89,17 +96,19 @@ const ProductForm = (props) => {
             <FormGroup>
                 <Label for="itemsInStock">Items In Stock</Label>
                 <Input type="number" name="itemsInStock" id="itemsInStock" value={itemsInStock}
-                       onChange={({target}) => setItemsInStock(target.value)}
+                    onChange={({ target }) => setItemsInStock(target.value)}
                 />
             </FormGroup>
             <FormGroup>
                 <Label for="expirationDate">Expiration date</Label>
                 <Input
+
+                    min={min}
                     type="date"
                     name="expirationDate"
                     id="expirationDate"
                     value={expirationDate}
-                    onChange={({target}) => setExpirationDate(target.value)}
+                    onChange={({ target }) => setExpirationDate(target.value)}
                 />
                 <FormFeedback>If a product has an expiration date it must expire not less than 30 days since
                     now</FormFeedback>
@@ -107,13 +116,13 @@ const ProductForm = (props) => {
             <FormGroup>
                 <Label for="receiptDate">Receipt date</Label>
                 <Input type="date" name="receiptDate" id="receiptDate" value={receiptDate}
-                       onChange={({target}) => setReceiptDate(target.value)}
+                    onChange={({ target }) => setReceiptDate(target.value)}
                 />
             </FormGroup>
             <FormGroup check>
                 <Label check>
                     <Input type="checkbox" checked={featured}
-                           onChange={({target}) => setFeatured(target.checked)}
+                        onChange={({ target }) => setFeatured(target.checked)}
                     />{' '}
                     Featured
                 </Label>

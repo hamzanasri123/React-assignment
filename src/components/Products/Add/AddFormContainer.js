@@ -1,20 +1,21 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ProductForm from '../Update/ProductForm';
-import {createProductForm} from '../../../actions/products';
+import { CREATE_PRODUCT } from '../../../actions/products';
 
 class AddFormContainer extends Component {
     render() {
-        const {categories, dispatch} = this.props;
+        const { categories, addProduct } = this.props;
 
         return (
             <>
                 <Link to='/'>Home</Link>
                 <ProductForm
-                    onSave={(data) => {return;}}
+                    onSave={(data) => { addProduct(data) }}
                     categories={categories}
+                    redirect={this.props.history.goBack}
                 />
             </>
         );
@@ -30,5 +31,16 @@ const mapStateToProps = (state) => {
         categories: state.categories,
     }
 };
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addProduct: (data) => {
+            dispatch({
+                type: CREATE_PRODUCT,
+                data,
+            });
+        },
+    };
+};
 
-export default connect(mapStateToProps)(AddFormContainer);
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddFormContainer);
